@@ -1,20 +1,43 @@
 package com.msci
 
+import com.mcsi.temporaldb.snappy.common.Constants
 import com.mcsi.temporaldb.snappy.ddl.CreateTables
 import com.mcsi.temporaldb.snappy.loaders.equities.EquityLoaderJob
+import com.mcsi.temporaldb.snappy.loaders.common.CommonDataLoaderJob
+import com.mcsi.temporaldb.snappy.queries.common.{AttributeCache, QueryExecutor, SnappyContextQueryExecutor}
+import com.mcsi.temporaldb.snappy.queries.equities.EquityQueries
 import com.msci.util.LocalSparkConf
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.SnappyContext
+import org.apache.spark.sql.{DataFrame, SnappyContext}
 
 object RunApp {
 
   val ddlSchemaPath =  getClass.getResource("/scripts/create_tables.sql").getPath
   val baseData = getClass.getResource("/data/equities/NT_RS_SPOT_EQUITY.csv").getPath
   val obsData = getClass.getResource("/data/equities/NT_RS_OBS_EQUITY_100k.csv").getPath
+  val attribTypesData = getClass.getResource("/data/common/attributeTypes.csv").getPath
   def main(args: Array[String]): Unit = {
     val snc = RunApp.snc
+    val queryExecutor: QueryExecutor[DataFrame] = new SnappyContextQueryExecutor(snc)
     CreateTables.createTables(snc, ddlSchemaPath)
+    CommonDataLoaderJob.loadData(snc, attribTypesData)
     EquityLoaderJob.loadData(snc, baseData, obsData)
+    AttributeCache.initialize(queryExecutor)
+
+
+    //Fire queries
+
+    //Get the name of the equity instrument corresponding to id 9
+    val q = s"select name from ${Constants.BRF_CON_INST} as x where x.ID = 9"
+    val equityInstrumentName = queryExecutor.executeQuery[String](q, df => {
+      df.collect().map(row => row.getString(0)).toIterator
+    }).next()
+    val data = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[BigDecimal, DataFrame](
+      equityInstrumentName, "price", queryExecutor)
+
+    data.foreach(println(_))
+
+
   }
 
   protected def sc: SparkContext = {

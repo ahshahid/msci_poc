@@ -79,10 +79,10 @@ object EquityLoaderJob {
           if (!row.isNullAt(6)) row.getTimestamp(6) else null,
           null, if (!row.isNullAt(7)) row.getTimestamp(7) else null, null)
       })
-      val tab1 =snc.table("BRF_CON_INST")
+      val tab1 =snc.table(Constants.BRF_CON_INST)
 
       val map1 = snc.createDataFrame(list1.asJava, tab1.schema)
-      map1.write.mode(SaveMode.Overwrite).saveAsTable("BRF_CON_INST")
+      map1.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_CON_INST)
 
 
 
@@ -93,27 +93,30 @@ object EquityLoaderJob {
           getTimestamp(7)
         else null, null))
 
-      val tab2 =snc.table("BRF_IR")
+      val tab2 =snc.table(Constants.BRF_IR)
       val map2 = snc.createDataFrame(list2.asJava, tab2.schema)
-      map2.write.mode(SaveMode.Overwrite).saveAsTable("BRF_IR")
+      map2.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_IR)
 
 
       val list3 = list.map(row => Row(row.getInt(0), row.getInt(0).toInt, "mature",
         if (!row.isNullAt(6)) row.getTimestamp(6) else null, null, if (!row.isNullAt(7)) row.
           getTimestamp(7)
         else null, null))
-      val tab3 =snc.table("BRF_IR_NODE")
+      val tab3 =snc.table(Constants.BRF_IR_NODE)
       val map3 = snc.createDataFrame(list3.asJava, tab3.schema)
-      map3.write.mode(SaveMode.Overwrite).saveAsTable("BRF_IR_NODE")
+      map3.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_IR_NODE)
 
       val df1 = snc.read.format("com.databricks.spark.csv").option("header", "true").load(
         dataFilePath2)
       val list4 = df1.collect().map(row => Row(row.getString(0).toInt, Timestamp.valueOf(row.
-        getString(1)), 1, BigDecimal((row.getString(2).trim()+"D").toDouble),
+        getString(1)), Constants.ATTRIBUTE_PRICE, BigDecimal((row.getString(2).trim()+"D").toDouble),
         Timestamp.valueOf(row.getString(1)), null)).toList
-      val tab4 =snc.table("BTS_IR_OBS")
+      val tab4 =snc.table(Constants.BTS_IR_OBS)
       val map4 = snc.createDataFrame(list4.asJava, tab4.schema)
-      map4.write.mode(SaveMode.Overwrite).saveAsTable("BTS_IR_OBS")
+      map4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
+
+
+
     }
 
   }
