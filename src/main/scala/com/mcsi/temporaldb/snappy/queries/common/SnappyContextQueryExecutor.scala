@@ -3,7 +3,7 @@ package com.mcsi.temporaldb.snappy.queries.common
 import java.sql.Timestamp
 
 import org.apache.spark.sql.{DataFrame, SnappyContext}
-
+import scala.reflect.runtime.universe._
 import scala.reflect.ClassTag
 
 /**
@@ -11,11 +11,16 @@ import scala.reflect.ClassTag
   */
 class SnappyContextQueryExecutor(snc: SnappyContext) extends QueryExecutor[DataFrame] {
 
-  def getTransformerQ1[K] : DataFrame => Iterator[(Timestamp, K )] = {
+  def getTransformerQ1[K: TypeTag] : DataFrame => Iterator[(Timestamp, K )] = {
     df: DataFrame => {
       import snc.sparkSession.implicits._
       df.map(row => row.getTimestamp(0) -> row.getDecimal(1)).collect().iterator.map{
-        case (ts, value) => (ts, value.asInstanceOf[K])
+        case (ts, value) => (ts, typeOf[K] match {
+          case t if( t =:= typeOf[Int]) => value.intValue().asInstanceOf[K]
+          case t if( t =:= typeOf[Double]) => value.doubleValue().asInstanceOf[K]
+          case t if( t =:= typeOf[Long]) => value.longValue().asInstanceOf[K]
+          case t if( t =:= typeOf[Float]) => value.floatValue().asInstanceOf[K]
+        } )
       }
     }
   }

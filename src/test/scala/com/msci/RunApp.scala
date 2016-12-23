@@ -32,10 +32,29 @@ object RunApp {
     val equityInstrumentName = queryExecutor.executeQuery[String](q, df => {
       df.collect().map(row => row.getString(0)).toIterator
     }).next()
-    val data = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[BigDecimal, DataFrame](
+    val data = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[Int, DataFrame](
       equityInstrumentName, "price", queryExecutor)
 
     data.foreach(println(_))
+
+
+    val q1 = s"select name from ${Constants.BRF_CON_INST} as x where" +
+      s" x.ID = ${Constants.TEST_INSTRUMENT_ID}"
+    val equityInstrumentName1 = queryExecutor.executeQuery[String](q1, df => {
+      df.collect().map(row => row.getString(0)).toIterator
+    }).next()
+
+    val testRs = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[Int, DataFrame](
+      equityInstrumentName1, "price", queryExecutor)
+
+    val (obstime, value) = testRs.next()
+    assert(!testRs.hasNext)
+    println("query obs time = " + obstime)
+    println("query value = " + value)
+    val expectedObsTime = java.sql.Timestamp.valueOf("2016-01-02 10:00:00.0")
+    val expectedValue = 127
+    assert(obstime == expectedObsTime)
+    assert(expectedValue == value)
 
 
   }

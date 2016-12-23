@@ -39,14 +39,19 @@ object EquityLoaderJob {
     val list = scala.collection.mutable.ArrayBuffer[Row]()
 
     val nameSet = scala.collection.mutable.HashSet[String]()
-    var id = 0
+    var id = 2
     var invalidRows = 0
     df.collect.foreach(row => {
       if(!nameSet.contains(row.getString(1))) {
         try {
           nameSet.add(row.getString(1))
           id += 1
-          list += Row(id, row.getString(1), row.getString(2), row.getString(3),
+          val idtoUse = if(row.getString(1) == Constants.TEST_INSTRUMENT_NAME) {
+            Constants.TEST_INSTRUMENT_ID
+          }else {
+            id
+          }
+          list += Row(idtoUse, row.getString(1), row.getString(2), row.getString(3),
             if (!row.isNullAt(4)) row.getString(4).toInt else null,
             row.getString(5), if (row.getString(6) != null) Timestamp.valueOf(row.getString(6))
             else
@@ -115,7 +120,10 @@ object EquityLoaderJob {
       val map4 = snc.createDataFrame(list4.asJava, tab4.schema)
       map4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
 
-
+      //Insert correction data to test instrument
+      snc.sql(s"insert into ${Constants.BTS_IR_OBS} values( ${Constants.TEST_INSTRUMENT_ID}," +
+        s"'2016-01-02 02:00:00.0', ${Constants.ATTRIBUTE_PRICE}, 200, '2016-01-03 02:00:00.0', " +
+        s"null)" )
 
     }
 

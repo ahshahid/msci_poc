@@ -14,4 +14,7 @@ object Constants {
   val BTS_IR_OBS_CORRECTION = "BTS_IR_OBS_CORRECTION"
   val INST_NAME_CORRECTION = "INST_NAME_CORRECTION"
   val BTS_IR_OBS = "BTS_IR_OBS"
+
+  val TEST_INSTRUMENT_ID = 1
+  val TEST_INSTRUMENT_NAME = "snappy_test_instrument_1"
 }
