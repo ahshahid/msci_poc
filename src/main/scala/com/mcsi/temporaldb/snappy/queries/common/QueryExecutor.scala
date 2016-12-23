@@ -13,8 +13,8 @@ trait QueryExecutor[R] {
 
   def executeQuery[T](queryStr: String, resultTransformer: R => Iterator[T]): Iterator[T]
 
-  def getTransformerQ1[K: TypeTag] : R => Iterator[(Timestamp, K)]
+  def getTransformerForObservations[K: TypeTag] : R => Iterator[(Timestamp, K)]
 
-  def getTransformerQ2 : R => Iterator[(String, Int)]
+  def getTransformerForAttributeCache : R => Iterator[(String, Int)]
 
 }

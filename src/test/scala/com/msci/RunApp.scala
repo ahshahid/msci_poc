@@ -1,5 +1,8 @@
 package com.msci
 
+import java.text.SimpleDateFormat
+import java.util.Calendar
+
 import com.mcsi.temporaldb.snappy.common.Constants
 import com.mcsi.temporaldb.snappy.ddl.CreateTables
 import com.mcsi.temporaldb.snappy.loaders.equities.EquityLoaderJob
@@ -32,11 +35,10 @@ object RunApp {
     val equityInstrumentName = queryExecutor.executeQuery[String](q, df => {
       df.collect().map(row => row.getString(0)).toIterator
     }).next()
-    val data = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[Int, DataFrame](
+    val data = EquityQueries.get1Value1AttribPerDayLastTimestamp[Int, DataFrame](
       equityInstrumentName, "price", queryExecutor)
 
     data.foreach(println(_))
-
 
     val q1 = s"select name from ${Constants.BRF_CON_INST} as x where" +
       s" x.ID = ${Constants.TEST_INSTRUMENT_ID}"
@@ -44,8 +46,15 @@ object RunApp {
       df.collect().map(row => row.getString(0)).toIterator
     }).next()
 
-    val testRs = EquityQueries.getQueryString1Value1AttribPerDayLastTimestamp[Int, DataFrame](
-      equityInstrumentName1, "price", queryExecutor)
+
+    this.testQuery1(snc, queryExecutor, equityInstrumentName1)
+    this.testQuery2(snc, queryExecutor, equityInstrumentName1)
+  }
+
+  def testQuery1(snc: SnappyContext, queryExecutor: QueryExecutor[DataFrame],
+                 instrumentName: String): Unit = {
+    val testRs = EquityQueries.get1Value1AttribPerDayLastTimestamp[Int, DataFrame](
+      instrumentName, "price", queryExecutor)
 
     val (obstime, value) = testRs.next()
     assert(!testRs.hasNext)
@@ -55,8 +64,23 @@ object RunApp {
     val expectedValue = 127
     assert(obstime == expectedObsTime)
     assert(expectedValue == value)
+  }
+
+  def testQuery2(snc: SnappyContext, queryExecutor: QueryExecutor[DataFrame],
+                 instrumentName: String): Unit = {
 
 
+    val testRs = EquityQueries.getAllCorrectionsValue1AttribPerDay[Int, DataFrame](
+      instrumentName, "price", queryExecutor)
+    
+    val (obstime, value) = testRs.next()
+    assert(!testRs.hasNext)
+    println("query obs time = " + obstime)
+    println("query value = " + value)
+    val expectedObsTime = java.sql.Timestamp.valueOf("2016-01-02 02:00:00.0")
+    val expectedValue = 123
+    assert(obstime == expectedObsTime)
+    assert(expectedValue == value)
   }
 
   protected def sc: SparkContext = {

@@ -11,7 +11,7 @@ object AttributeCache {
 
   def initialize[K](queryExecutor: QueryExecutor[K]): Unit = {
     mapping = queryExecutor.executeQuery[(String, Int)](
-      s"select * from ${Constants.BRF_VAL_TYPE}", queryExecutor.getTransformerQ2 ).toMap
+      s"select * from ${Constants.BRF_VAL_TYPE}", queryExecutor.getTransformerForAttributeCache ).toMap
 
   }
 
