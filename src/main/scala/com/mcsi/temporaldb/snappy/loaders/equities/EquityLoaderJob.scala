@@ -115,15 +115,14 @@ object EquityLoaderJob {
         dataFilePath2)
       val list4 = df1.collect().map(row => Row(row.getString(0).toInt, Timestamp.valueOf(row.
         getString(1)), Constants.ATTRIBUTE_PRICE, BigDecimal((row.getString(2).trim()+"D").toDouble),
-        Timestamp.valueOf(row.getString(1)), null)).toList
+        Timestamp.valueOf(row.getString(1)))).toList
       val tab4 =snc.table(Constants.BTS_IR_OBS)
       val map4 = snc.createDataFrame(list4.asJava, tab4.schema)
       map4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
 
       //Insert correction data to test instrument
       snc.sql(s"insert into ${Constants.BTS_IR_OBS} values( ${Constants.TEST_INSTRUMENT_ID}," +
-        s"'2016-01-02 02:00:00.0', ${Constants.ATTRIBUTE_PRICE}, 200, '2016-01-03 02:00:00.0', " +
-        s"null)" )
+        s"'2016-01-02 02:00:00.0', ${Constants.ATTRIBUTE_PRICE}, 200, '2016-01-03 02:00:00.0')" )
 
     }
 

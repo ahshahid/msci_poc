@@ -172,7 +172,7 @@ object EquityQueries {
     val modDate = if(hr == 0 && min == 1 && sec == 0) {
       //add time till end of day
       cal.add(Calendar.HOUR_OF_DAY, 23)
-      cal.add(Calendar.MINUTE, 58)
+      cal.add(Calendar.MINUTE, 59)
       cal.add(Calendar.SECOND, 59)
       cal.get(Calendar.YEAR) +"-" + (cal.get(Calendar.MONTH) + 1) + "-" + cal.get(Calendar
         .DAY_OF_MONTH) + " " + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) +
@@ -204,7 +204,7 @@ object EquityQueries {
     val modDate = if(hr == 0 && min == 1 && sec == 0) {
       //add time till end of day
       cal.add(Calendar.HOUR_OF_DAY, 23)
-      cal.add(Calendar.MINUTE, 58)
+      cal.add(Calendar.MINUTE, 59)
       cal.add(Calendar.SECOND, 59)
       cal.get(Calendar.YEAR) +"-" + (cal.get(Calendar.MONTH) + 1) +"-" + cal.get(Calendar
         .DAY_OF_MONTH) + " " + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE) +
