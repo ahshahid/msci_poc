@@ -4,8 +4,9 @@ import java.sql.Timestamp
 
 import com.typesafe.config.Config
 import com.mcsi.temporaldb.snappy.common.Constants
-import org.apache.calcite.avatica.ColumnMetaData.StructType
-import org.apache.spark.sql.types.StructField
+
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{row, _}
 
 import scala.collection.JavaConverters._
@@ -72,53 +73,62 @@ object EquityLoaderJob {
         }
       }
     })
-
+    val baseSchema = StructType(Array(StructField("1", IntegerType), StructField("2",
+      StringType), StructField("3", StringType), StructField("4", StringType), StructField("5",
+      IntegerType), StructField("6", StringType), StructField("7", TimestampType),
+      StructField("8", TimestampType), StructField("9", TimestampType), StructField("10",
+        StringType), StructField("11", StringType)) )
     println( "Total number of invalid rows found =" + invalidRows)
     println( "Total number of valid rows found =" + id)
     if(id > 0) {
-      val list1 = list.map((row: Row) => {
+
+      val filteredDF = snc.createDataFrame(list.asJava, baseSchema)
+
+
+      val tab1 =snc.table(Constants.BRF_CON_INST)
+
+      val data1 = filteredDF.map((row: Row) => {
         Row(row.getInt(0), Constants.instrument_type_equity, row.
           getString(1), row.getString(2), row.getString(9), if (!row.isNullAt(8)) row
           .getTimestamp(8)
         else null,
           if (!row.isNullAt(6)) row.getTimestamp(6) else null,
           null, if (!row.isNullAt(7)) row.getTimestamp(7) else null, null)
-      })
-      val tab1 =snc.table(Constants.BRF_CON_INST)
+      })(RowEncoder(tab1.schema))
 
-      val map1 = snc.createDataFrame(list1.asJava, tab1.schema)
-      map1.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_CON_INST)
+      data1.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_CON_INST)
 
 
-
-      val list2 = list.map(row => Row(row.getInt(0), row.getString(3), if (!row.isNullAt(4)) row.
+      val tab2 =snc.table(Constants.BRF_IR)
+      val data2 = filteredDF.map(row => Row(row.getInt(0), row.getString(3), if (!row.isNullAt(4)) row.
         getInt(4)
       else null,
         if (!row.isNullAt(6)) row.getTimestamp(6) else null, null, if (!row.isNullAt(7)) row.
           getTimestamp(7)
-        else null, null))
-
-      val tab2 =snc.table(Constants.BRF_IR)
-      val map2 = snc.createDataFrame(list2.asJava, tab2.schema)
-      map2.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR)
+        else null, null))(RowEncoder(tab2.schema))
 
 
-      val list3 = list.map(row => Row(row.getInt(0), row.getInt(0).toInt, "mature",
+
+      data2.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR)
+
+      val tab3 =snc.table(Constants.BRF_IR_NODE)
+      val data3 = filteredDF.map(row => Row(row.getInt(0), row.getInt(0).toInt, "mature",
         if (!row.isNullAt(6)) row.getTimestamp(6) else null, null, if (!row.isNullAt(7)) row.
           getTimestamp(7)
-        else null, null))
-      val tab3 =snc.table(Constants.BRF_IR_NODE)
-      val map3 = snc.createDataFrame(list3.asJava, tab3.schema)
-      map3.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR_NODE)
+        else null, null))(RowEncoder(tab3.schema))
 
+
+      data3.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR_NODE)
+
+      val tab4 =snc.table(Constants.BTS_IR_OBS)
       val df1 = snc.read.format("com.databricks.spark.csv").option("header", "true").load(
         dataFilePath2)
-      val list4 = df1.collect().map(row => Row(row.getString(0).toInt, Timestamp.valueOf(row.
+      val data4 = df1.map(row => Row(row.getString(0).toInt, Timestamp.valueOf(row.
         getString(1)), Constants.ATTRIBUTE_PRICE, BigDecimal((row.getString(2).trim()+"D").toDouble),
-        Timestamp.valueOf(row.getString(1)))).toList
-      val tab4 =snc.table(Constants.BTS_IR_OBS)
-      val map4 = snc.createDataFrame(list4.asJava, tab4.schema)
-      map4.write.mode(SaveMode.Append).saveAsTable(Constants.BTS_IR_OBS)
+        Timestamp.valueOf(row.getString(1))))(RowEncoder(tab4.schema))
+
+
+      data4.write.mode(SaveMode.Append).saveAsTable(Constants.BTS_IR_OBS)
 
       //Insert correction data to test instrument
       snc.sql(s"insert into ${Constants.BTS_IR_OBS} values( ${Constants.TEST_INSTRUMENT_ID}," +

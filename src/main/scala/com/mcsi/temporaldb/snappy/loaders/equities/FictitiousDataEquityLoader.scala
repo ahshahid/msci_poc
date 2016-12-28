@@ -9,6 +9,7 @@ import com.gemstone.gemfire.internal.tools.gfsh.app.commands.key
 import com.typesafe.config.Config
 import com.mcsi.temporaldb.snappy.common.Constants
 import org.apache.calcite.avatica.ColumnMetaData.StructType
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.{row, _}
 
@@ -67,35 +68,39 @@ object FictitiousDataEquityLoader {
     val pastTS = Timestamp.valueOf(pastTime)
     val startYear = cal.get(Calendar.YEAR)
 
-    val data1 = snc.range(startIndex, endIndex).collect.map(row => {
+
+    val tab1 = snc.table(Constants.BRF_CON_INST)
+    val data1 = snc.range(startIndex, endIndex).map(row => {
       val id = row.getLong(0).toInt
       Row(id, Constants.instrument_type_equity, snappyInstrument + id, "snappy test instrument",
         "AAAAAAAAA", pastTS, pastTS, null, pastTS, null)
 
-    })
-    val tab1 = snc.table(Constants.BRF_CON_INST)
-    val map1 = snc.createDataFrame(data1.toList.asJava, tab1.schema)
-    map1.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_CON_INST)
+    })(RowEncoder(tab1.schema))
 
-    val data2 = snc.range(startIndex, endIndex).collect.map(row => {
-      Row(row.getLong(0).toInt, "Dollar", 6, pastTS, null, pastTS, null)
-    })
+
+    data1.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_CON_INST)
+
     val tab2 = snc.table(Constants.BRF_IR)
-    val map2 = snc.createDataFrame(data2.toList.asJava, tab2.schema)
-    map2.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR)
+    val data2 = snc.range(startIndex, endIndex).map(row => {
+      Row(row.getLong(0).toInt, "Dollar", 6, pastTS, null, pastTS, null)
+    })(RowEncoder(tab2.schema))
 
-    val data3 = snc.range(startIndex, endIndex).collect.map(row => {
-      Row(row.getLong(0).toInt, row.getLong(0).toInt, "matured", pastTS, null, pastTS, null)
-    })
+
+    data2.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR)
 
     val tab3 = snc.table(Constants.BRF_IR_NODE)
-    val map3 = snc.createDataFrame(data3.toList.asJava, tab3.schema)
-    map3.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR_NODE)
+    val data3 = snc.range(startIndex, endIndex).map(row => {
+      Row(row.getLong(0).toInt, row.getLong(0).toInt, "matured", pastTS, null, pastTS, null)
+    })(RowEncoder(tab3.schema))
 
 
+    data3.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR_NODE)
+
+
+    val tab4 = snc.table(Constants.BTS_IR_OBS)
     val jump = 2
     val rndom = new scala.util.Random(123456789)
-    val data4 = snc.range(startIndex, endIndex).collect.flatMap(row => {
+    val data4 = snc.range(startIndex, endIndex).flatMap(row => {
       val start = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss").parse(pastTime)
       val cal1 = Calendar.getInstance()
       cal1.setTime(start)
@@ -124,12 +129,10 @@ object FictitiousDataEquityLoader {
         row_row
       }
       allRows.flatten.flatten
-    })
+    })(RowEncoder(tab4.schema))
 
 
-    val tab4 = snc.table(Constants.BTS_IR_OBS)
-    val map4 = snc.createDataFrame(data4.toList.asJava, tab4.schema)
-    map4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
+    data4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
 
 
   }
