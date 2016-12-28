@@ -6,7 +6,7 @@ import java.util.Calendar
 
 import com.mcsi.temporaldb.snappy.common.Constants
 import com.mcsi.temporaldb.snappy.ddl.CreateTables
-import com.mcsi.temporaldb.snappy.loaders.equities.EquityLoaderJob
+import com.mcsi.temporaldb.snappy.loaders.equities.{EquityLoaderJob, FictitiousDataEquityLoader}
 import com.mcsi.temporaldb.snappy.loaders.common.CommonDataLoaderJob
 import com.mcsi.temporaldb.snappy.queries.common.{AttributeCache, QueryExecutor, SnappyContextQueryExecutor}
 import com.mcsi.temporaldb.snappy.queries.equities.EquityQueries
@@ -19,12 +19,15 @@ object RunApp {
   val ddlSchemaPath =  getClass.getResource("/scripts/create_tables.sql").getPath
   val baseData = getClass.getResource("/data/equities/NT_RS_SPOT_EQUITY.csv").getPath
   val obsData = getClass.getResource("/data/equities/NT_RS_OBS_EQUITY_100k.csv").getPath
-  val attribTypesData = getClass.getResource("/data/common/attributeTypes.csv").getPath
+  val attribTypesData  =  getClass.getResource("/data/common/attributeTypes.csv").getPath
+  val dataGenConfig = getClass.getResource("/data/equities/datagen_config.properties").getPath
+
   def main(args: Array[String]): Unit = {
     val snc = RunApp.snc
     val queryExecutor: QueryExecutor[DataFrame] = new SnappyContextQueryExecutor(snc)
     CreateTables.createTables(snc, ddlSchemaPath)
     CommonDataLoaderJob.loadData(snc, attribTypesData)
+    FictitiousDataEquityLoader.loadData(snc, dataGenConfig)
     EquityLoaderJob.loadData(snc, baseData, obsData)
     AttributeCache.initialize(queryExecutor)
 
@@ -39,7 +42,7 @@ object RunApp {
     val data = EquityQueries.get1Value1AttribPerDayLastTimestamp[Int, DataFrame](
       equityInstrumentName, "price", queryExecutor)
 
-    data.foreach(println(_))
+   // data.foreach(println(_))
 
     val q1 = s"select name from ${Constants.BRF_CON_INST} as x where" +
       s" x.ID = ${Constants.TEST_INSTRUMENT_ID}"
@@ -47,6 +50,9 @@ object RunApp {
       df.collect().map(row => row.getString(0)).toIterator
     }).next()
 
+
+    println("Total number of rows in observation table = " +
+      snc.table(Constants.BTS_IR_OBS).count())
 
     this.testQuery1(snc, queryExecutor, equityInstrumentName1)
     this.testQuery2(snc, queryExecutor, equityInstrumentName1)

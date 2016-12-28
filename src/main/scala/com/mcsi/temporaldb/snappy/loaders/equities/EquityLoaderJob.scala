@@ -39,7 +39,7 @@ object EquityLoaderJob {
     val list = scala.collection.mutable.ArrayBuffer[Row]()
 
     val nameSet = scala.collection.mutable.HashSet[String]()
-    var id = 2
+    var id = FictitiousDataEquityLoader.endIndex
     var invalidRows = 0
     df.collect.foreach(row => {
       if(!nameSet.contains(row.getString(1))) {
@@ -87,7 +87,7 @@ object EquityLoaderJob {
       val tab1 =snc.table(Constants.BRF_CON_INST)
 
       val map1 = snc.createDataFrame(list1.asJava, tab1.schema)
-      map1.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_CON_INST)
+      map1.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_CON_INST)
 
 
 
@@ -100,7 +100,7 @@ object EquityLoaderJob {
 
       val tab2 =snc.table(Constants.BRF_IR)
       val map2 = snc.createDataFrame(list2.asJava, tab2.schema)
-      map2.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_IR)
+      map2.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR)
 
 
       val list3 = list.map(row => Row(row.getInt(0), row.getInt(0).toInt, "mature",
@@ -109,7 +109,7 @@ object EquityLoaderJob {
         else null, null))
       val tab3 =snc.table(Constants.BRF_IR_NODE)
       val map3 = snc.createDataFrame(list3.asJava, tab3.schema)
-      map3.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BRF_IR_NODE)
+      map3.write.mode(SaveMode.Append).saveAsTable(Constants.BRF_IR_NODE)
 
       val df1 = snc.read.format("com.databricks.spark.csv").option("header", "true").load(
         dataFilePath2)
@@ -118,7 +118,7 @@ object EquityLoaderJob {
         Timestamp.valueOf(row.getString(1)))).toList
       val tab4 =snc.table(Constants.BTS_IR_OBS)
       val map4 = snc.createDataFrame(list4.asJava, tab4.schema)
-      map4.write.mode(SaveMode.Overwrite).saveAsTable(Constants.BTS_IR_OBS)
+      map4.write.mode(SaveMode.Append).saveAsTable(Constants.BTS_IR_OBS)
 
       //Insert correction data to test instrument
       snc.sql(s"insert into ${Constants.BTS_IR_OBS} values( ${Constants.TEST_INSTRUMENT_ID}," +
