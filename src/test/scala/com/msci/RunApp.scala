@@ -37,7 +37,7 @@ object RunApp {
                  instrumentName: String): Unit = {
     val testRs = EquityQueries.get1Value1AttribPerDayLastTimestamp[Int, T](
       instrumentName, "price", queryExecutor)
-
+    testRs.hasNext
     val (obstime, value) = testRs.next()
     assert(!testRs.hasNext)
     println("query obs time = " + obstime)
@@ -52,7 +52,7 @@ object RunApp {
                  instrumentName: String): Unit = {
     val testRs = EquityQueries.get1Value1AttribPerDayLastTimestampBeforeCutOff[Int, T](
       instrumentName, "price", "02:00", queryExecutor)
-
+    testRs.hasNext
     val (obstime, value) = testRs.next()
     assert(!testRs.hasNext)
     println("query obs time = " + obstime)
@@ -70,9 +70,10 @@ object RunApp {
       instrumentNameID9, "price", 2013, queryExecutor)
     // only one attribute per day
     val mapping  = scala.collection.mutable.Map[Int, Set[Int]]()
-    assert(testRs.hasNext)
+    var foundResults = false
     val cal = Calendar.getInstance()
     while(testRs.hasNext) {
+      foundResults = true
       val (obstime, value) = testRs.next()
       cal.setTimeInMillis(obstime.getTime)
       assert(cal.get(Calendar.YEAR) == 2013)
@@ -85,6 +86,8 @@ object RunApp {
       set += day
       mapping.put(month, set)
     }
+
+    assert(foundResults)
   }
 
 
@@ -93,10 +96,15 @@ object RunApp {
 
     val testRs = EquityQueries.getAllValue1AttribPerDay[Int, T](
       instrumentName, "price", queryExecutor)
+    testRs.hasNext
     val(obs1, val1) = testRs.next()
+    testRs.hasNext
     val(obs2, val2) = testRs.next()
+    testRs.hasNext
     val(obs3, val3) = testRs.next()
+    testRs.hasNext
     val(obs4, val4) = testRs.next()
+    testRs.hasNext
     val(obs5, val5) = testRs.next()
     assert(!testRs.hasNext)
 
@@ -128,10 +136,11 @@ object RunApp {
     val time = Timestamp.valueOf(timeTill)
     val mapping  = scala.collection.mutable.Map[Int, Set[Int]]()
     var currentYear = -1
-    assert(testRs.hasNext)
+    var foundResults = false
     val cal = Calendar.getInstance()
     cal.setTimeInMillis(time.getTime)
     while(testRs.hasNext) {
+      foundResults = true
       val (obstime, value) = testRs.next()
       cal.setTimeInMillis(obstime.getTime)
       assert(obstime.before(time))
@@ -148,10 +157,10 @@ object RunApp {
       set += day
       mapping.put(month, set)
     }
-
+    assert(foundResults)
     val testRs1 = EquityQueries.get1Value1AttribPerDayLastTimestampTillDate[Int, T](
       instrumentName, "price", "2016-01-02 03:00:00.0", queryExecutor)
-
+    testRs1.hasNext
     val (obstime, value) = testRs1.next()
     assert(!testRs1.hasNext)
     assert(value == 200)
@@ -159,7 +168,7 @@ object RunApp {
 
     val testRs2 = EquityQueries.get1Value1AttribPerDayLastTimestampTillDate[Int, T](
       instrumentName, "price", "2016-01-02", queryExecutor)
-
+    testRs2.hasNext
     val (obstime2, value2) = testRs2.next()
     assert(!testRs2.hasNext)
     assert(value2 == 127)
@@ -170,7 +179,7 @@ object RunApp {
                  instrumentName: String): Unit = {
   val testRs1 = EquityQueries.getAllValue1AttribPerDayTillDateNoCorrection[Int, T](
       instrumentName, "price", "2016-01-02 03:00:00.0", queryExecutor)
-
+    testRs1.hasNext
     val (obstime, value) = testRs1.next()
     assert(!testRs1.hasNext)
     assert(value == 123)
@@ -178,11 +187,15 @@ object RunApp {
 
     val testRs2 = EquityQueries.getAllValue1AttribPerDayTillDateNoCorrection[Int, T](
       instrumentName, "price", "2016-01-02", queryExecutor)
-
+    testRs2.hasNext
     val (obstime1, value1) = testRs2.next()
+    testRs2.hasNext
     val (obstime2, value2) = testRs2.next()
+    testRs2.hasNext
     val (obstime3, value3) = testRs2.next()
+    testRs2.hasNext
     val (obstime4, value4) = testRs2.next()
+    testRs2.hasNext
     val (obstime5, value5) = testRs2.next()
     assert(!testRs2.hasNext)
     assert(value1 == 123)
@@ -203,7 +216,7 @@ object RunApp {
 
     val testRs = EquityQueries.getAllCorrectionsValue1AttribPerDay[Int, T](
       instrumentName, "price", queryExecutor)
-
+    testRs.hasNext
     val (obstime, value) = testRs.next()
     assert(!testRs.hasNext)
     println("query obs time = " + obstime)

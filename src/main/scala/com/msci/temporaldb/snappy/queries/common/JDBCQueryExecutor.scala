@@ -21,7 +21,7 @@ class JDBCQueryExecutor(jdbcUrl: String) extends QueryExecutor[ResultSet] {
     (rs: ResultSet) => {
       val buffer = new ArrayBuffer[(String, Int)]
       while(rs.next()) {
-        buffer += (rs.getString(1) -> rs.getInt(2))
+        buffer += (rs.getString(2) -> rs.getInt(1))
       }
       buffer.iterator
     }
