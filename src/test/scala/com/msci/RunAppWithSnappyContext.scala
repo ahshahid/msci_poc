@@ -2,7 +2,8 @@ package com.msci
 
 import com.msci.temporaldb.snappy.common.Constants
 import com.msci.temporaldb.snappy.loaders.CreateLoadTables
-import com.msci.temporaldb.snappy.queries.common.SnappyContextQueryExecutor
+import com.msci.temporaldb.snappy.loaders.equities.FictitiousDataEquityLoader
+import com.msci.temporaldb.snappy.queries.common.{AttributeCache, SnappyContextQueryExecutor}
 import com.msci.util.LocalSparkConf
 import org.apache.spark.sql.SnappyContext
 import org.apache.spark.{SparkConf, SparkContext}
@@ -16,7 +17,7 @@ object RunAppWithSnappyContext {
    val snc = getOrCreate(sc)
    CreateLoadTables.createAndLoad(snc)
    val queryExecutor = new SnappyContextQueryExecutor(snc)
-
+    AttributeCache.initialize(queryExecutor)
     println("Total number of rows in observation table = " +
       snc.table(Constants.BTS_IR_OBS).count())
     //Get the name of the equity instrument corresponding to id 9
@@ -32,6 +33,8 @@ object RunAppWithSnappyContext {
     }).next()
 
    RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
+
+   RunApp.testPerf(FictitiousDataEquityLoader.snappyInstrument + 4, "price", 10, queryExecutor )
 
   }
 

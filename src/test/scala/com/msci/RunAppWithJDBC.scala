@@ -1,7 +1,8 @@
 package com.msci
 
 import com.msci.temporaldb.snappy.common.Constants
-import com.msci.temporaldb.snappy.queries.common.JDBCQueryExecutor
+import com.msci.temporaldb.snappy.loaders.equities.FictitiousDataEquityLoader
+import com.msci.temporaldb.snappy.queries.common.{AttributeCache, JDBCQueryExecutor}
 
 
 /**
@@ -12,7 +13,7 @@ object RunAppWithJDBC {
   def main(args: Array[String]): Unit = {
 
     val queryExecutor = new JDBCQueryExecutor(jdbcUrl)
-
+    AttributeCache.initialize(queryExecutor)
 
     //Get the name of the equity instrument corresponding to id 9
     val q = s"select name from ${Constants.BRF_CON_INST} as x where x.ID = 9"
@@ -28,7 +29,17 @@ object RunAppWithJDBC {
       Iterator(rs.getString(1))
     }).next()
 
-    RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
+    val q2 = s"select count(*) from ${Constants.BTS_IR_OBS} "
+    val numRows = queryExecutor.executeQuery[Long](q2, rs => {
+      rs.next()
+      Iterator(rs.getLong(1))
+    }).next()
+
+    println("Total number of row in observation table =" + numRows)
+
+
+  //  RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
+    RunApp.testPerf(FictitiousDataEquityLoader.snappyInstrument + 4, "price", 10, queryExecutor )
 
   }
 

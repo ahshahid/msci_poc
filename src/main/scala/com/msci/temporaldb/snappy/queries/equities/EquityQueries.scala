@@ -3,6 +3,7 @@ package com.msci.temporaldb.snappy.queries.equities
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.logging.{Level, Logger}
 
 import com.msci.temporaldb.snappy.common.Constants
 import com.msci.temporaldb.snappy.queries.common.{AttributeCache, QueryExecutor}
@@ -85,9 +86,12 @@ object EquityQueries {
 
 
   def get1Value1AttribPerDayLastTimestamp[T: TypeTag, R](instrumentName: String,
-      attributeName: String, queryExecutor: QueryExecutor[R]): Iterator[(Timestamp, T)] =  {
+      attributeName: String, queryExecutor: QueryExecutor[R], logQuery: Boolean = true): Iterator[
+    (Timestamp,
+    T)] =  {
     val valType = AttributeCache.getValType(attributeName)
     val query = query1.format(instrumentName, valType)
+    if(logQuery)
     println("equity query1 = " + query)
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
@@ -106,7 +110,8 @@ object EquityQueries {
     *         observation attribute
     */
   def get1Value1AttribPerDayLastTimestampBeforeCutOff[T: TypeTag, R](instrumentName: String,
-    attributeName: String, cutoffTime: String, queryExecutor: QueryExecutor[R]):
+    attributeName: String, cutoffTime: String, queryExecutor: QueryExecutor[R],
+                                                                     logQuery: Boolean = true):
   Iterator[(Timestamp,T)] =  {
     var totalSecs = -1
     val iter = cutOffTimeFormatters.iterator
@@ -129,31 +134,39 @@ object EquityQueries {
 
     val valType = AttributeCache.getValType(attributeName)
     val query = query2.format(instrumentName, valType, totalSecs)
-    println("equity query2 = " + query)
+    if(logQuery)
+      println("equity query2 = " + query)
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
 
 
   def get1Value1AttribPerDayLastTimestampForYear[T: TypeTag, R](instrumentName: String,
-    attributeName: String, year: Int, queryExecutor: QueryExecutor[R]): Iterator[(Timestamp, T)]
+    attributeName: String, year: Int, queryExecutor: QueryExecutor[R], logQuery: Boolean = true):
+  Iterator[(Timestamp, T)]
   =  {
     val valType = AttributeCache.getValType(attributeName)
     val query = query3.format(instrumentName, valType, year)
-    println("equity query3 = " + query)
+    if(logQuery)
+      println("equity query3 = " + query)
+
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
 
   def getAllValue1AttribPerDay[T: TypeTag, R](instrumentName: String,
-  attributeName: String, queryExecutor: QueryExecutor[R]): Iterator[(Timestamp, T)]
+  attributeName: String, queryExecutor: QueryExecutor[R], logQuery: Boolean = true):
+  Iterator[(Timestamp, T)]
   =  {
     val valType = AttributeCache.getValType(attributeName)
     val query = query4.format(instrumentName, valType)
-    println("equity query4 = " + query)
+    if(logQuery)
+      println("equity query4 = " + query)
+
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
 
   def get1Value1AttribPerDayLastTimestampTillDate[T: TypeTag, R](instrumentName: String,
-         attributeName: String, tillDate: String, queryExecutor: QueryExecutor[R]):
+         attributeName: String, tillDate: String, queryExecutor: QueryExecutor[R],
+                                                                 logQuery: Boolean = true):
   Iterator[(Timestamp, T)]  =  {
     val ts = {
       try {
@@ -181,12 +194,15 @@ object EquityQueries {
     }
     val valType = AttributeCache.getValType(attributeName)
     val query = query5.format(instrumentName, valType, modDate)
-    println("equity query5 = " + query)
+    if(logQuery)
+      println("equity query5 = " + query)
+
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
 
   def getAllValue1AttribPerDayTillDateNoCorrection[T: TypeTag, R](instrumentName: String,
-       attributeName: String, tillDate: String, queryExecutor: QueryExecutor[R]):
+       attributeName: String, tillDate: String, queryExecutor: QueryExecutor[R],
+                                                                  logQuery: Boolean = true):
   Iterator[(Timestamp, T)]  =  {
     val ts = {
       try {
@@ -213,17 +229,22 @@ object EquityQueries {
     }
     val valType = AttributeCache.getValType(attributeName)
     val query = query6.format(instrumentName, valType, modDate)
-    println("equity query6 = " + query)
+    if(logQuery)
+      println("equity query6 = " + query)
+
     queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor.getTransformerForObservations[T])
   }
 
   def getAllCorrectionsValue1AttribPerDay[T: TypeTag, R](instrumentName: String,
-     attributeName: String, queryExecutor: QueryExecutor[R]): Iterator[(Timestamp, T)]
+     attributeName: String, queryExecutor: QueryExecutor[R], logQuery: Boolean = true):
+  Iterator[(Timestamp, T)]
   =  {
     val valType = AttributeCache.getValType(attributeName)
     val query = query7.format(instrumentName, valType)
-    println("equity query7 = " + query)
-   val iter =  queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor
+    if(logQuery)
+      println("equity query7 = " + query)
+
+    val iter =  queryExecutor.executeQuery[(Timestamp,T)](query, queryExecutor
       .getTransformerForObservations[T])
     //filter out null which may be the first element
     if(iter.hasNext) {
