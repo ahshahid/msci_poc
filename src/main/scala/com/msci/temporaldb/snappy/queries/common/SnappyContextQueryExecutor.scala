@@ -1,10 +1,10 @@
-package com.mcsi.temporaldb.snappy.queries.common
+package com.msci.temporaldb.snappy.queries.common
 
 import java.sql.Timestamp
 
 import org.apache.spark.sql.{DataFrame, SnappyContext}
+
 import scala.reflect.runtime.universe._
-import scala.reflect.ClassTag
 
 /**
   * Created by ashahid on 12/21/16.

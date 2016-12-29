@@ -1,27 +1,22 @@
-package com.mcsi.temporaldb.snappy.loaders.equities
+package com.msci.temporaldb.snappy.loaders.equities
 
-import java.io.FileInputStream
+import java.net.URL
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Properties}
 
-import com.gemstone.gemfire.internal.tools.gfsh.app.commands.key
+import com.msci.temporaldb.snappy.common.Constants
+import com.msci.temporaldb.snappy.loaders.CreateLoadTables
 import com.typesafe.config.Config
-import com.mcsi.temporaldb.snappy.common.Constants
-import org.apache.calcite.avatica.ColumnMetaData.StructType
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.types.StructField
-import org.apache.spark.sql.{row, _}
 
-import scala.collection.JavaConverters._
-import scala.util.Properties
 
 
 class FictitiousDataEquityLoader extends SnappySQLJob {
   def runSnappyJob(ss: SnappySession, jobConfig: Config): Any = {
-    val configFilePath = jobConfig.getString(Constants.dataGenConfig)
 
-    FictitiousDataEquityLoader.loadData(ss.sqlContext, configFilePath)
+    FictitiousDataEquityLoader.loadData(ss.sqlContext, CreateLoadTables.dataGenConfig)
 
   }
 
@@ -40,9 +35,9 @@ object FictitiousDataEquityLoader {
   var endIndex: Int = 0
   val snappyInstrument = "snappy_instrument_"
 
-  def loadData(snc: SnappyContext, configFilePath: String): Unit = {
+  def loadData(snc: SnappyContext, configFilePath: URL): Unit = {
     val props = new Properties()
-    props.load(new FileInputStream(configFilePath))
+    props.load(configFilePath.openStream())
     val numSecurities = props.getProperty(keyNumSecurities, "1000").toInt
     val numYears = props.getProperty(keyNumYearsData, "20").toInt
     val freq = props.getProperty(keyFrequencyPerDay, "4").toInt

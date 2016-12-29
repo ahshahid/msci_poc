@@ -1,10 +1,7 @@
-package com.mcsi.temporaldb.snappy.common
+package com.msci.temporaldb.snappy.common
 
 object Constants {
-  val dataFilePath1 = "data-file-path1"
-  val dataFilePath2 = "data-file-path2"
-  val dataGenConfig = "data-gen-config-file-path"
-  val dataFilePathAttributeTypes = "data-file-path_attrib_types"
+
   val instrument_type_equity: Int = 1
   val ATTRIBUTE_PRICE: Int = 1
 
@@ -18,4 +15,8 @@ object Constants {
 
   val TEST_INSTRUMENT_ID = 1
   val TEST_INSTRUMENT_NAME = "snappy_test_instrument_1"
+
+  val attribFileKey = "attributeFile-path"
+  val instrumentsFileKey = "equityInstrumentsFile-path"
+  val obsFileKey = "observationFile-path"
 }

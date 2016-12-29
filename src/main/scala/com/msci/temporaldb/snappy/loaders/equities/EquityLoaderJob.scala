@@ -1,22 +1,23 @@
-package com.mcsi.temporaldb.snappy.loaders.equities
+package com.msci.temporaldb.snappy.loaders.equities
 
+import java.net.URL
 import java.sql.Timestamp
 
+import com.msci.temporaldb.snappy.common.Constants
+import com.msci.temporaldb.snappy.loaders.CreateLoadTables
 import com.typesafe.config.Config
-import com.mcsi.temporaldb.snappy.common.Constants
-
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{row, _}
 
 import scala.collection.JavaConverters._
 
 
 class EquityLoaderJob extends SnappySQLJob {
   def runSnappyJob(ss: SnappySession, jobConfig: Config): Any = {
-     val dataFilePath1 = jobConfig.getString(Constants.dataFilePath1)
-     val dataFilePath2 = jobConfig.getString(Constants.dataFilePath2)
-     EquityLoaderJob.loadData(ss.sqlContext, dataFilePath1, dataFilePath2)
+     EquityLoaderJob.loadData(ss.sqlContext, CreateLoadTables.dataFilePathProps.getProperty
+     (Constants.instrumentsFileKey), CreateLoadTables.dataFilePathProps.getProperty(Constants
+       .obsFileKey))
 
   }
 

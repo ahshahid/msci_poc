@@ -1,10 +1,8 @@
-package com.mcsi.temporaldb.snappy.queries.common
+package com.msci.temporaldb.snappy.queries.common
 
 import java.sql.Timestamp
-import scala.reflect.runtime.universe._
-import org.apache.spark.sql.DataFrame
 
-import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 /**
   * Created by ashahid on 12/21/16.

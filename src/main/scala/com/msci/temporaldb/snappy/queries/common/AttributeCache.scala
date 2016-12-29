@@ -1,6 +1,6 @@
-package com.mcsi.temporaldb.snappy.queries.common
+package com.msci.temporaldb.snappy.queries.common
 
-import com.mcsi.temporaldb.snappy.common.Constants
+import com.msci.temporaldb.snappy.common.Constants
 
 /**
   * Created by ashahid on 12/21/16.

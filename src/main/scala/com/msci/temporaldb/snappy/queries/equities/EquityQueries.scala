@@ -1,12 +1,11 @@
-package com.mcsi.temporaldb.snappy.queries.equities
+package com.msci.temporaldb.snappy.queries.equities
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import com.mcsi.temporaldb.snappy.common.Constants
-import com.mcsi.temporaldb.snappy.queries.common.{AttributeCache, QueryExecutor}
-import org.apache.spark.sql.Row
+import com.msci.temporaldb.snappy.common.Constants
+import com.msci.temporaldb.snappy.queries.common.{AttributeCache, QueryExecutor}
 
 import scala.reflect.runtime.universe._
 
