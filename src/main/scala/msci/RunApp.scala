@@ -1,4 +1,4 @@
-package com.msci
+package msci
 
 import java.sql.Timestamp
 import java.util.Calendar
@@ -37,7 +37,7 @@ object RunApp {
   def testPerf[T](instrumentName: String, attribute: String, numTrials: Int, queryExecutor:
   QueryExecutor[T] ):
   Unit = {
-
+    val debug = false
     val cumulativeTime =Array.ofDim[Long](7)
     val numRecordsArray =Array.ofDim[Long](7)
     for(i <- 0 until numTrials) {
@@ -46,7 +46,7 @@ object RunApp {
       // query1
       var t1 = System.currentTimeMillis()
       var rs =  EquityQueries.get1Value1AttribPerDayLastTimestamp[Int, T](
-        instrumentName, attribute, queryExecutor, false)
+        instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       var t2 = System.currentTimeMillis()
       cumulativeTime(0) += (t2 -t1)
@@ -55,7 +55,7 @@ object RunApp {
       // query2
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.get1Value1AttribPerDayLastTimestampBeforeCutOff[Int, T](
-        instrumentName, attribute, "08:00", queryExecutor, false)
+        instrumentName, attribute, "08:00", queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(1) += (t2 -t1)
@@ -64,7 +64,7 @@ object RunApp {
       // query3
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.get1Value1AttribPerDayLastTimestampForYear[Int, T](
-        instrumentName, attribute, 2013, queryExecutor, false)
+        instrumentName, attribute, 2013, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(2) += (t2 -t1)
@@ -73,7 +73,7 @@ object RunApp {
       // query4
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.getAllValue1AttribPerDay[Int, T](
-        instrumentName, attribute, queryExecutor, false)
+        instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(3) += (t2 -t1)
@@ -83,7 +83,7 @@ object RunApp {
       val timeTill = "2015-08-03 20:00:00"
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.get1Value1AttribPerDayLastTimestampTillDate[Int, T](
-        instrumentName, attribute, timeTill , queryExecutor, false)
+        instrumentName, attribute, timeTill , queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(4) += (t2 -t1)
@@ -92,7 +92,7 @@ object RunApp {
       // query6
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.getAllValue1AttribPerDayTillDateNoCorrection[Int, T](
-        instrumentName, attribute, "2015-01-02 03:00:00.0", queryExecutor, false)
+        instrumentName, attribute, "2015-01-02 03:00:00.0", queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(5) += (t2 -t1)
@@ -101,7 +101,7 @@ object RunApp {
       // query7
       t1 = System.currentTimeMillis()
       rs =  EquityQueries.getAllCorrectionsValue1AttribPerDay[Int, T](
-        instrumentName, attribute, queryExecutor, false)
+        instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
       cumulativeTime(6) += (t2 -t1)

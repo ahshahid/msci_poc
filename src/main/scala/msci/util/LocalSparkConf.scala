@@ -1,4 +1,4 @@
-package com.msci.util
+package msci.util
 
 import org.apache.spark.SparkConf
 

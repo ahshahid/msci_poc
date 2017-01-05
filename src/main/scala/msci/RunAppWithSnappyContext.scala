@@ -1,10 +1,11 @@
-package com.msci
+package msci
 
 import com.msci.temporaldb.snappy.common.Constants
 import com.msci.temporaldb.snappy.loaders.CreateLoadTables
 import com.msci.temporaldb.snappy.loaders.equities.FictitiousDataEquityLoader
 import com.msci.temporaldb.snappy.queries.common.{AttributeCache, SnappyContextQueryExecutor}
-import com.msci.util.LocalSparkConf
+
+import msci.util.LocalSparkConf
 import org.apache.spark.sql.SnappyContext
 import org.apache.spark.{SparkConf, SparkContext}
 
