@@ -3,13 +3,14 @@ package msci
 import com.msci.temporaldb.snappy.common.Constants
 import com.msci.temporaldb.snappy.loaders.equities.FictitiousDataEquityLoader
 import com.msci.temporaldb.snappy.queries.common.{AttributeCache, JDBCQueryExecutor}
+import com.msci.temporaldb.snappy.queries.equities.EquityQueries
 
 
 /**
   * Created by ashahid on 12/28/16.
   */
 object RunAppWithJDBC {
-  val jdbcUrl = s"jdbc:snappydata://35.167.66.0:1527/"
+  val jdbcUrl = s"jdbc:snappydata://localhost:1527/"
   def main(args: Array[String]): Unit = {
 
     val queryExecutor = new JDBCQueryExecutor(jdbcUrl)
