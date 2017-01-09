@@ -38,9 +38,10 @@ object RunApp {
   QueryExecutor[T] ):
   Unit = {
     val debug = false
+    val warmUp = 10
     val cumulativeTime =Array.ofDim[Long](7)
     val numRecordsArray =Array.ofDim[Long](7)
-    for(i <- 0 until numTrials) {
+    for(i <- 0 until (numTrials + warmUp)) {
 
       var numRecords: Long = 0
       // query1
@@ -49,8 +50,10 @@ object RunApp {
         instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       var t2 = System.currentTimeMillis()
-      cumulativeTime(0) += (t2 -t1)
-      numRecordsArray(0) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(0) += (t2 - t1)
+        numRecordsArray(0) = numRecords
+      }
 
       // query2
       t1 = System.currentTimeMillis()
@@ -58,8 +61,10 @@ object RunApp {
         instrumentName, attribute, "08:00", queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(1) += (t2 -t1)
-      numRecordsArray(1) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(1) += (t2 - t1)
+        numRecordsArray(1) = numRecords
+      }
 
       // query3
       t1 = System.currentTimeMillis()
@@ -67,8 +72,10 @@ object RunApp {
         instrumentName, attribute, 2013, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(2) += (t2 -t1)
-      numRecordsArray(2) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(2) += (t2 - t1)
+        numRecordsArray(2) = numRecords
+      }
 
       // query4
       t1 = System.currentTimeMillis()
@@ -76,8 +83,10 @@ object RunApp {
         instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(3) += (t2 -t1)
-      numRecordsArray(3) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(3) += (t2 - t1)
+        numRecordsArray(3) = numRecords
+      }
 
       // query5
       val timeTill = "2015-08-03 20:00:00"
@@ -86,8 +95,10 @@ object RunApp {
         instrumentName, attribute, timeTill , queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(4) += (t2 -t1)
-      numRecordsArray(4) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(4) += (t2 - t1)
+        numRecordsArray(4) = numRecords
+      }
 
       // query6
       t1 = System.currentTimeMillis()
@@ -95,8 +106,10 @@ object RunApp {
         instrumentName, attribute, "2015-01-02 03:00:00.0", queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(5) += (t2 -t1)
-      numRecordsArray(5) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(5) += (t2 - t1)
+        numRecordsArray(5) = numRecords
+      }
 
       // query7
       t1 = System.currentTimeMillis()
@@ -104,8 +117,10 @@ object RunApp {
         instrumentName, attribute, queryExecutor, debug)
       numRecords = consumeResults(rs)
       t2 = System.currentTimeMillis()
-      cumulativeTime(6) += (t2 -t1)
-      numRecordsArray(6) = numRecords
+      if(i >= warmUp) {
+        cumulativeTime(6) += (t2 - t1)
+        numRecordsArray(6) = numRecords
+      }
     }
 
     println("average calculated on number of iterations = " + numTrials)

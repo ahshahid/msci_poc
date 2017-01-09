@@ -8,7 +8,8 @@ object LocalSparkConf {
     val conf = new SparkConf().
       setIfMissing("spark.master", "local[4]").
       setAppName(getClass.getName)
-    conf.set("spark.sql.inMemoryColumnarStorage.batchSize", "4")
+    conf.set("spark.sql.inMemoryColumnarStorage.batchSize", "4").set("spark.ui.enabled", "true")
+
     if (addOn != null) {
       addOn(conf)
     }

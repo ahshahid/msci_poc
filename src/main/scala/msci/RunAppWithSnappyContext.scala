@@ -33,9 +33,10 @@ object RunAppWithSnappyContext {
       df.collect().map(row => row.getString(0)).toIterator
     }).next()
 
-   RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
-
-   RunApp.testPerf(FictitiousDataEquityLoader.snappyInstrument + 4, "price", 10, queryExecutor )
+  // RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
+    RunApp.run(queryExecutor, "9", Constants.TEST_INSTRUMENT_ID.toString)
+    RunApp.testPerf("4", "price", 10, queryExecutor )
+   //RunApp.testPerf(FictitiousDataEquityLoader.snappyInstrument + 4, "price", 10, queryExecutor )
 
   }
 

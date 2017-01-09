@@ -22,63 +22,61 @@ object EquityQueries {
 
   val q5_6JustDateFormatter =  new SimpleDateFormat("yyyy-mm-dd")
 
-  val query1 = s"""select distinct last_value(obs_date) over win as observation_time,
-                  last_value(val) over win  from
-                 ${Constants.BTS_IR_OBS} as obs,  ${Constants.BRF_CON_INST} as instr where
-                 instr.Name = '%1$$s' and obs.NODE_ID = instr.ID  and obs.val_type =  %2$$s
-                 order by observation_time window win as
-                 (partition by datediff(obs_date,'1900-01-01')
-                 order by obs_date , obs.TRANS_RNG_START
-                  rows between unbounded preceding and unbounded following)"""
+  val query1 = s"""select observation_time, val from (select obs_date as observation_time,
+                  val, rank() over win  as rankk from ${Constants.BTS_IR_OBS} as obs where
+                  obs.NODE_ID = %1$$s  and obs.val_type =  %2$$s
+                  window win as (partition by datediff(obs_date,'1900-01-01')
+                  order by obs_date desc, obs.TRANS_RNG_START desc
+                  rows between unbounded preceding and current row)
+                  ) as results where  rankk = 1  order by observation_time
 
-  val query2 = s"""select distinct last_value(obs_date) over win as observation_time,
-                 last_value(val) over win  from  ${Constants.BTS_IR_OBS} as obs,
-                 ${Constants.BRF_CON_INST} as instr where
-                 (hour(obs_date) * 3600 + minute(obs_date) *60 + second(obs_date)) <= '%3$$s' and
-                 instr.Name = '%1$$s' and obs.NODE_ID = instr.ID
-                  and obs.val_type =  %2$$s  order by observation_time window win as
-                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date ,
-                  obs.TRANS_RNG_START  rows between unbounded preceding and unbounded following)"""
+    """
 
-  val query3 = s"""select distinct last_value(obs_date) over win as observation_time,
-                 last_value(val) over win  from
-                 ${Constants.BTS_IR_OBS} as obs,  ${Constants.BRF_CON_INST} as instr where
-                 year(obs_date) = %3$$s  and  instr.Name = '%1$$s'
-                  and obs.NODE_ID = instr.ID  and obs.val_type =  %2$$s
-                  order by observation_time window win as
-                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date ,
-                  obs.TRANS_RNG_START  rows between unbounded preceding and unbounded following)"""
+  val query2 = s"""select observation_time, val from (select obs_date  as
+                 observation_time, val, rank() over win as rankk from  ${Constants.BTS_IR_OBS} as
+                 obs where (hour(obs_date) * 3600 + minute(obs_date) *60 + second(obs_date))
+                 <= '%3$$s'  and obs.NODE_ID = %1$$s   and obs.val_type =  %2$$s   window win as
+                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date desc ,
+                  obs.TRANS_RNG_START desc rows between unbounded preceding and current row) ) as
+                  results where rankk = 1  order by observation_time
+    """
 
-  val query4 = s"""select distinct obs_date  as observation_time,
-                  last_value(val) over win  from
-                 ${Constants.BTS_IR_OBS} as obs,  ${Constants.BRF_CON_INST} as instr where
-                 instr.Name = '%1$$s' and obs.NODE_ID = instr.ID  and obs.val_type =  %2$$s
-                 order by observation_time window win as
-                 (partition by obs_date  order by  obs.TRANS_RNG_START
-                  rows between unbounded preceding and unbounded following)"""
+  val query3 = s"""select observation_time, val from (select obs_date as observation_time,
+                 val, rank() over win as rankk from ${Constants.BTS_IR_OBS} as obs where
+                 year(obs_date) = %3$$s  and obs.NODE_ID = %1$$s  and obs.val_type =  %2$$s
+                  window win as( partition by datediff(obs_date,'1900-01-01') order by obs_date
+                  desc , obs.TRANS_RNG_START desc rows between unbounded preceding and current
+                  row)) as   results where rankk = 1 order by observation_time
+    """
 
-  val query5 = s"""select distinct last_value(obs_date) over win as observation_time,
-                 last_value(val) over win  from  ${Constants.BTS_IR_OBS} as obs,
-                 ${Constants.BRF_CON_INST} as instr where
-                 obs_date <= '%3$$s' and  instr.Name = '%1$$s' and obs.NODE_ID = instr.ID
-                  and obs.val_type =  %2$$s  order by observation_time window win as
-                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date ,
-                  obs.TRANS_RNG_START  rows between unbounded preceding and unbounded following)"""
+  val query4 = s"""select observation_time , val from (select  obs_date  as  observation_time,
+                 val , row_number() over win as rankk from ${Constants.BTS_IR_OBS} as obs where
+                 obs.NODE_ID = %1$$s  and obs.val_type =  %2$$s
+                  window win as (partition by obs_date  order by  obs.TRANS_RNG_START desc
+                  rows between unbounded preceding and current row)) as results where rankk = 1
+                   order by observation_time    """
 
-  val query6 = s"""select distinct obs_date  as observation_time,
-                  last_value(val) over win  from
-                 ${Constants.BTS_IR_OBS} as obs,  ${Constants.BRF_CON_INST} as instr where
-                 instr.Name = '%1$$s' and obs.NODE_ID = instr.ID and obs.val_type =  %2$$s
+  val query5 = s"""select observation_time , val from (select  obs_date  as observation_time,
+                 val, rank() over win as rankk  from  ${Constants.BTS_IR_OBS} as obs where
+                 obs_date <= '%3$$s' and   obs.NODE_ID = %1$$s
+                  and obs.val_type =  %2$$s   window win as
+                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date desc,
+                  obs.TRANS_RNG_START desc rows between unbounded preceding and current row))
+                  as results where rankk = 1  order by observation_time
+    """
+
+  val query6 = s"""select observation_time, val from (select  obs_date  as observation_time,
+                  val, rank() over win as rankk  from  ${Constants.BTS_IR_OBS} as obs where
+                   obs.NODE_ID = %1$$s and obs.val_type =  %2$$s
                  and obs_date <= '%3$$s' and obs.TRANS_RNG_START <= '%3$$s'
-                 order by observation_time window win as
-                 (partition by obs_date  order by  obs.TRANS_RNG_START
-                  rows between unbounded preceding and unbounded following)"""
+                  window win as (partition by obs_date  order by  obs.TRANS_RNG_START desc
+                  rows between unbounded preceding and current row)) as results where rankk = 1
+                   order by observation_time  """
 
 
   val query7 = s"""select distinct lag(obs_date, 1) over win as observation_time,
-                  lag(val, 1) over win  from
-                 ${Constants.BTS_IR_OBS} as obs,  ${Constants.BRF_CON_INST} as instr where
-                 instr.Name = '%1$$s' and obs.NODE_ID = instr.ID  and obs.val_type =  %2$$s
+                  lag(val, 1) over win  from ${Constants.BTS_IR_OBS} as obs where
+                  obs.NODE_ID = %1$$s and obs.val_type =  %2$$s
                  order by observation_time window win as
                  (partition by obs_date  order by  obs.TRANS_RNG_START
                   rows between  1 preceding and 1 preceding)"""
@@ -232,7 +230,7 @@ object EquityQueries {
      attributeName: String, queryExecutor: QueryExecutor[R], logQuery: Boolean = true):
   Iterator[(Timestamp, T)] =  {
     val valType = AttributeCache.getValType(attributeName)
-    val query = query7.format(instrumentName, valType)
+    val query = query7.format( instrumentName, valType)
     if(logQuery)
       println("equity query7 = " + query)
 

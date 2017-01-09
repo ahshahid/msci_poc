@@ -23,7 +23,7 @@ VALID_RNG_START TIMESTAMP,
 VALID_RNG_END TIMESTAMP,
 TRANS_RNG_START TIMESTAMP ,
 TRANS_RNG_END TIMESTAMP
-)  USING row OPTIONS(partition_by 'ID' ,buckets '1') ;
+)  USING row OPTIONS(partition_by 'ID' ,buckets '79') ;
 
 CREATE INDEX BRF_CON_INST_NAME  ON BRF_CON_INST(NAME) ;
 
@@ -36,7 +36,7 @@ VALID_RNG_END TIMESTAMP,
 TRANS_RNG_START TIMESTAMP ,
 TRANS_RNG_END TIMESTAMP,
 CONSTRAINT fk_id FOREIGN KEY (INST_ID) REFERENCES BRF_CON_INST(ID)
-)  USING row OPTIONS(partition_by 'INST_ID', colocate_with 'BRF_CON_INST' ,buckets '1') ;
+)  USING row OPTIONS(partition_by 'INST_ID', colocate_with 'BRF_CON_INST' ,buckets '79') ;
 
 
 
@@ -49,7 +49,7 @@ VALID_RNG_END TIMESTAMP,
 TRANS_RNG_START TIMESTAMP  ,
 TRANS_RNG_END TIMESTAMP  ,
 CONSTRAINT fk_inst_id FOREIGN KEY (INST_ID) REFERENCES BRF_IR(INST_ID)
-) USING row OPTIONS(partition_by 'INST_ID', colocate_with 'BRF_IR' ,buckets '1') ;
+) USING row OPTIONS(partition_by 'INST_ID', colocate_with 'BRF_IR' ,buckets '79') ;
 
 
 
@@ -67,5 +67,6 @@ OBS_DATE TIMESTAMP,
 VAL_TYPE  Integer ,
 VAL numeric(24, 12),
 TRANS_RNG_START TIMESTAMP  not null
-)  USING column OPTIONS(partition_by 'NODE_ID', colocate_with 'BRF_CON_INST', buckets '1')
---CREATE INDEX BTS_IR_OBS_ID ON BTS_IR_OBS(NODE_ID, val_type)--
+)  USING row OPTIONS(partition_by 'NODE_ID', colocate_with 'BRF_CON_INST', buckets '79');
+
+CREATE INDEX BTS_IR_OBS_ID ON BTS_IR_OBS(NODE_ID, val_type)
