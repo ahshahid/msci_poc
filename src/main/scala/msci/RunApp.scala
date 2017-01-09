@@ -38,7 +38,7 @@ object RunApp {
   QueryExecutor[T] ):
   Unit = {
     val debug = false
-    val warmUp = 10
+    val warmUp = 20
     val cumulativeTime =Array.ofDim[Long](7)
     val numRecordsArray =Array.ofDim[Long](7)
     for(i <- 0 until (numTrials + warmUp)) {

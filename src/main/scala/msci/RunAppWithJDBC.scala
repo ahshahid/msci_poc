@@ -40,8 +40,8 @@ object RunAppWithJDBC {
 
 
     //RunApp.run(queryExecutor, equityInstrumentName, equityInstrumentName1)
-    RunApp.run(queryExecutor, "9", s"${Constants.TEST_INSTRUMENT_ID}")
-    RunApp.testPerf( "4", "price", 80, queryExecutor )
+    //RunApp.run(queryExecutor, "9", s"${Constants.TEST_INSTRUMENT_ID}")
+    RunApp.testPerf( "4", "price", 100, queryExecutor )
    // RunApp.testPerf(FictitiousDataEquityLoader.snappyInstrument + 4, "price", 80, queryExecutor )
 
 

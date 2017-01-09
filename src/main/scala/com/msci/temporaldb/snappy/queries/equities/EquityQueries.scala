@@ -25,7 +25,7 @@ object EquityQueries {
   val query1 = s"""select observation_time, val from (select obs_date as observation_time,
                   val, rank() over win  as rankk from ${Constants.BTS_IR_OBS} as obs where
                   obs.NODE_ID = %1$$s  and obs.val_type =  %2$$s
-                  window win as (partition by datediff(obs_date,'1900-01-01')
+                  window win as (partition by datediff(obs_date, current_date)
                   order by obs_date desc, obs.TRANS_RNG_START desc
                   rows between unbounded preceding and current row)
                   ) as results where  rankk = 1  order by observation_time
@@ -36,7 +36,7 @@ object EquityQueries {
                  observation_time, val, rank() over win as rankk from  ${Constants.BTS_IR_OBS} as
                  obs where (hour(obs_date) * 3600 + minute(obs_date) *60 + second(obs_date))
                  <= '%3$$s'  and obs.NODE_ID = %1$$s   and obs.val_type =  %2$$s   window win as
-                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date desc ,
+                  ( partition by datediff(obs_date, current_date) order by obs_date desc ,
                   obs.TRANS_RNG_START desc rows between unbounded preceding and current row) ) as
                   results where rankk = 1  order by observation_time
     """
@@ -44,7 +44,7 @@ object EquityQueries {
   val query3 = s"""select observation_time, val from (select obs_date as observation_time,
                  val, rank() over win as rankk from ${Constants.BTS_IR_OBS} as obs where
                  year(obs_date) = %3$$s  and obs.NODE_ID = %1$$s  and obs.val_type =  %2$$s
-                  window win as( partition by datediff(obs_date,'1900-01-01') order by obs_date
+                  window win as( partition by datediff(obs_date,current_date) order by obs_date
                   desc , obs.TRANS_RNG_START desc rows between unbounded preceding and current
                   row)) as   results where rankk = 1 order by observation_time
     """
@@ -60,7 +60,7 @@ object EquityQueries {
                  val, rank() over win as rankk  from  ${Constants.BTS_IR_OBS} as obs where
                  obs_date <= '%3$$s' and   obs.NODE_ID = %1$$s
                   and obs.val_type =  %2$$s   window win as
-                  ( partition by datediff(obs_date,'1900-01-01') order by obs_date desc,
+                  ( partition by datediff(obs_date, current_date) order by obs_date desc,
                   obs.TRANS_RNG_START desc rows between unbounded preceding and current row))
                   as results where rankk = 1  order by observation_time
     """
